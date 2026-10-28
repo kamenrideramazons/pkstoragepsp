@@ -1,6 +1,7 @@
 name: Build PSP app
 on:
   push:
+  pull_request:
   workflow_dispatch:
 jobs:
   build:
@@ -12,10 +13,13 @@ jobs:
         run: |
           export PSPDEV=/usr/local/pspdev
           export PATH=$PATH:$PSPDEV/bin
-          make
+          make -j$(nproc)
           mkdir -p dist/PKStorage
           cp EBOOT.PBP dist/PKStorage/
+          # Future: copy sprite atlas here when ready
+          # cp assets/sprites.bin dist/PKStorage/
       - uses: actions/upload-artifact@v4
         with:
           name: PKStorage-psp
           path: dist
+          if-no-files-found: error
