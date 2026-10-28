@@ -1,0 +1,23 @@
+# PC test build: make -f Makefile.pc test
+CC ?= gcc
+CFLAGS = -O1 -g -Wall -Wextra -std=c99 -D_DEFAULT_SOURCE -fsanitize=address,undefined
+CORE = gen3.c species.c store.c fileio.c
+
+all: build/pkstorage_pc build/test_core build/mkfake build/checkfile
+
+build:
+	mkdir -p build
+build/pkstorage_pc: build $(CORE) app.c plat_pc.c
+	$(CC) $(CFLAGS) -I. $(CORE) app.c plat_pc.c -o $@
+build/test_core: build $(CORE) fakesave.c test_core.c
+	$(CC) $(CFLAGS) -I. $(CORE) fakesave.c test_core.c -o $@
+build/mkfake: build $(CORE) fakesave.c mkfake.c
+	$(CC) $(CFLAGS) -I. $(CORE) fakesave.c mkfake.c -o $@
+build/checkfile: build $(CORE) fakesave.c checkfile.c
+	$(CC) $(CFLAGS) -I. $(CORE) fakesave.c checkfile.c -o $@
+
+test: all
+	./build/test_core
+	sh e2e.sh
+clean:
+	rm -rf build
