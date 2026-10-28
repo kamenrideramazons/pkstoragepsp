@@ -1,0 +1,21 @@
+name: Build PSP app
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: pspdev/pspdev:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build EBOOT.PBP
+        run: |
+          export PSPDEV=/usr/local/pspdev
+          export PATH=$PATH:$PSPDEV/bin
+          make
+          mkdir -p dist/PKStorage
+          cp EBOOT.PBP dist/PKStorage/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PKStorage-psp
+          path: dist
